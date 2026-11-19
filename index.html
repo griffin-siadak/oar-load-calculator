@@ -130,6 +130,10 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
 .notes { font-size: .82rem; color: var(--muted); display: grid; gap: 6px; }
 .notes b { color: var(--ink); font-weight: 600; }
 .side { display: grid; gap: 20px; min-width: 0; }
+.disclaimer { border-top: 1px solid var(--line); padding-top: 14px; font-size: .8rem; color: var(--muted); display: grid; gap: 6px; max-width: 80ch; }
+.disclaimer p { margin: 0; }
+.disclaimer b { color: var(--ink); font-weight: 600; }
+.disclaimer a { color: var(--accent); overflow-wrap: anywhere; }
 .layout-switch { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: center; font-size: .8rem; color: var(--muted); }
 .layout-switch button { font: 600 .8rem var(--body); color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
 :root:not([data-device="phone"]) .phone-only, :root[data-device="phone"] .desk-only { display: none; }
@@ -288,6 +292,10 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
     <div><b>Baseline</b> uses the midpoint of each range in the manual's Figure 7 rigging table for the matched squad and boat. The manual's guidance is to start from the table, row, race and watch the boat, then adjust.</div>
     <div><b>Crew weight</b> picks the table. Men averaging 70 kg (154.3 lb) or less use the lightweight men's row; women averaging 57 kg (125.7 lb) or less use the lightweight women's row (World Rowing crew-average limits). Juniors use the junior tables. The manual does not scale load by body weight within a table, so this tool doesn't either: use the ladder to fit your crew's size and strength.</div>
     <div><b>Inboard rule of thumb:</b> sweep inboard = spread + 30 cm (±1); sculling inboard = (spread + 18 cm overlap) ÷ 2. Clams are about 1 cm each. Use the blade maker's recommendations for new blade shapes such as fat blades.</div>
+  </section>
+  <section class="disclaimer">
+    <p><b>Disclaimer.</b> The rigging figures and formulas in this tool come from the USRowing Level 2 Coaches Manual (Module 5, Chapter 2 and the Figure 7 club-level rigging table). Lightweight cutoffs use World Rowing crew-average limits. This is an independent tool, not affiliated with or endorsed by USRowing. Treat every number as a starting point: measure your own rig, row, and adjust from what you see in the boat.</p>
+    <p>Suggestions or corrections? Email <a href="mailto:siadak.griffin@gmail.com?subject=Oar%20Load%20Calculator">siadak.griffin@gmail.com</a>.</p>
   </section>
   <footer class="layout-switch">
     <span id="layout-now"></span>
