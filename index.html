@@ -482,9 +482,9 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
 
   seg("cat", "cat"); seg("unit", "unit"); seg("method", "method");
   function layoutSwitch() {
-    const L = window.OLCLayout, cur = isPhone() ? "phone" : "desktop";
+    const L = window.OLCLayout, cur = isPhone() ? "mobile" : "desktop";
     $("layout-now").textContent = `Showing the ${cur} layout${L.pref ? " (your choice)" : " for this screen"}.`;
-    $("layout-btn").textContent = L.pref ? "Pick automatically" : `Use ${cur === "phone" ? "desktop" : "phone"} layout`;
+    $("layout-btn").textContent = L.pref ? "Pick automatically" : `Use ${cur === "mobile" ? "desktop" : "mobile"} layout`;
   }
   $("layout-btn").addEventListener("click", () => {
     const L = window.OLCLayout;

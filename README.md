@@ -29,11 +29,11 @@ Gearing is shown for both methods so you can see how each one changes the feel o
 
 **When to go lighter or heavier.** A short guide from the manual. Go lighter for a strong headwind, a long race (4k or more) or a novice crew that can't yet row the full stroke. Go heavier for a strong tailwind, a short race (under 1,000 m) or strong athletes who are short in the water. It also covers what each problem looks like from the launch.
 
-## Phone and desktop layouts
+## Mobile and desktop layouts
 
 The page checks the screen size and whether it's a touch screen, then picks a layout. It does not rely on the browser's user agent.
 
-- **Phone** (screens 760 px wide or less, or a touch screen turned sideways): the results come right after the crew inputs and the rig adjustments move below them. The ladder shows one method at a time, with a switch between "Oar length" and "Collar (clams)", so the table fits without sideways scrolling. Buttons and inputs are sized for thumbs, the number fields bring up a decimal keypad, and the oar diagram is redrawn so its labels stay readable.
+- **Mobile** (screens 760 px wide or less, or a touch screen turned sideways): the results come right after the crew inputs and the rig adjustments move below them. The ladder shows one method at a time, with a switch between "Oar length" and "Collar (clams)", so the table fits without sideways scrolling. Buttons and inputs are sized for thumbs, the number fields bring up a decimal keypad, and the oar diagram is redrawn so its labels stay readable.
 - **Desktop:** inputs on the left, results on the right, and the full ladder with both methods side by side.
 
 If the page guesses wrong, a switch at the bottom forces the other layout. The browser remembers that choice until you set it back to automatic.
