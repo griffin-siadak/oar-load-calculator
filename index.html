@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Rowing rigging calculator: enter crew average weight and boat class to get the USRowing Level 2 rigging-table baseline and a ladder of loads with outboard, oar length and inboard settings.">
 <style>
-:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+:root { color-scheme: dark; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
@@ -16,32 +16,22 @@ img { max-width: 100%; }
 <style>
 /* Layout: rigging-bench worksheet — inputs on the left, the matched manual row + load ladder on the right; stacks on phones. */
 :root {
-  --bg: #F3F5F6;
-  --panel: #FFFFFF;
-  --ink: #15212B;
-  --muted: #5B6873;
-  --line: #D5DCE1;
-  --accent: #0E6E73;      /* deep river teal */
-  --accent-soft: #DCEFEF;
-  --tape: #E8B530;        /* tape-measure yellow, baseline marker */
-  --tape-soft: #FBF1D3;
-  --light: #2F6FB3;       /* lighter-load side */
-  --heavy: #B4532A;       /* heavier-load side */
+  /* Solarized Dark (Ethan Schoonover's palette), used in every system theme */
+  --bg: #002b36;          /* base03 */
+  --panel: #073642;       /* base02 */
+  --ink: #93a1a1;         /* base1, primary text */
+  --muted: #839496;       /* base0, secondary text */
+  --line: color-mix(in srgb, #586e75 55%, #073642);   /* base01 toned down */
+  --accent: #2aa198;      /* cyan */
+  --accent-soft: color-mix(in srgb, #2aa198 18%, #073642);
+  --tape: #b58900;        /* yellow, baseline marker */
+  --tape-soft: color-mix(in srgb, #b58900 18%, #002b36);
+  --light: #268bd2;       /* blue, lighter-load side */
+  --heavy: #cb4b16;       /* orange, heavier-load side */
   --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
   --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0F171D; --panel: #16222A; --ink: #E4EAEE; --muted: #93A1AC; --line: #2A3944;
-    --accent: #4FB8B9; --accent-soft: #173638; --tape: #E8B530; --tape-soft: #3A3115;
-    --light: #7FB0E6; --heavy: #E8956C; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0F171D; --panel: #16222A; --ink: #E4EAEE; --muted: #93A1AC; --line: #2A3944;
-  --accent: #4FB8B9; --accent-soft: #173638; --tape: #E8B530; --tape-soft: #3A3115;
-  --light: #7FB0E6; --heavy: #E8956C; color-scheme: dark;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body {
