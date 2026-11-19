@@ -11,6 +11,34 @@ img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
 <title>Oar Load Calculator</title>
+<script>
+/* Device check: phone = narrow screen, or a touch screen held sideways (short height).
+   Sets <html data-device="phone|desktop"> before the page paints and re-checks on resize/rotate.
+   A saved choice from the layout switch at the bottom of the page overrides the check. */
+(() => {
+  const q = matchMedia("(max-width: 760px), (pointer: coarse) and (max-height: 500px)");
+  let pref = null;
+  try { pref = localStorage.getItem("olc-layout"); } catch (e) {}
+  const apply = () => {
+    const d = pref === "phone" || pref === "desktop" ? pref : (q.matches ? "phone" : "desktop");
+    if (document.documentElement.dataset.device !== d) {
+      document.documentElement.dataset.device = d;
+      document.dispatchEvent(new Event("devicechange"));
+    }
+  };
+  window.OLCLayout = {
+    get pref() { return pref; },
+    set(p) {
+      pref = p;
+      try { p ? localStorage.setItem("olc-layout", p) : localStorage.removeItem("olc-layout"); } catch (e) {}
+      apply();
+      document.dispatchEvent(new Event("devicechange"));
+    }
+  };
+  apply();
+  q.addEventListener("change", apply);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -60,7 +88,6 @@ select:focus-visible, input:focus-visible, button:focus-visible { outline: 2px s
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .wt { display: grid; grid-template-columns: 1fr 92px; gap: 8px; }
 .hint { font-size: .78rem; color: var(--muted); margin: 0; }
-.divider { border: 0; border-top: 1px solid var(--line); margin: 6px 0 14px; }
 .reset { font: 600 .8rem var(--body); color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
 
 .match { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: baseline; margin-bottom: 14px; }
@@ -102,6 +129,37 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
 .case p { font-size: .82rem; color: var(--muted); margin: 6px 0 0; }
 .notes { font-size: .82rem; color: var(--muted); display: grid; gap: 6px; }
 .notes b { color: var(--ink); font-weight: 600; }
+.side { display: grid; gap: 20px; min-width: 0; }
+.layout-switch { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: center; font-size: .8rem; color: var(--muted); }
+.layout-switch button { font: 600 .8rem var(--body); color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+:root:not([data-device="phone"]) .phone-only, :root[data-device="phone"] .desk-only { display: none; }
+
+/* ---------- Phone layout ---------- */
+/* Order on phones: crew inputs, then results, then rig tweaks, then notes. */
+:root[data-device="phone"] body { padding-block: 14px 28px; font-size: 15px; }
+[data-device="phone"] .wrap { gap: 14px; }
+[data-device="phone"] header h1 { font-size: 1.9rem; }
+[data-device="phone"] .grid { display: flex; flex-direction: column; align-items: stretch; gap: 14px; }
+[data-device="phone"] .side { display: contents; }
+[data-device="phone"] .crew { order: 1; }
+[data-device="phone"] .results { order: 2; }
+[data-device="phone"] .rig { order: 3; }
+[data-device="phone"] .panel { padding: 14px; }
+[data-device="phone"] .seg button { min-height: 44px; font-size: .85rem; padding: 8px 4px; }
+[data-device="phone"] select, [data-device="phone"] input[type=number] { min-height: 44px; font-size: 16px; }
+[data-device="phone"] .reset, [data-device="phone"] .layout-switch button { min-height: 44px; }
+[data-device="phone"] .reset { width: 100%; }
+[data-device="phone"] .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+[data-device="phone"] .stat { padding: 8px; }
+[data-device="phone"] .stat .v { font-size: 1.15rem; }
+[data-device="phone"] .stat .lbl { font-size: .66rem; }
+[data-device="phone"] .oar text { font-size: 12px; }
+[data-device="phone"] .method { margin-bottom: 10px; }
+[data-device="phone"] table { min-width: 0; }
+[data-device="phone"] th, [data-device="phone"] td { padding: 9px 6px; }
+[data-device="phone"] th { white-space: normal; }
+[data-device="phone"] td .warn { display: block; margin: 0; font-size: .66rem; }
+[data-device="phone"] .tag { gap: 5px; }
 </style>
 
 </head>
@@ -109,11 +167,13 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
 <div class="wrap">
   <header>
     <h1>Oar Load Calculator</h1>
-    <p>Enter the crew's average weight and boat class. The tool matches the USRowing Level 2 rigging table (Figure 7, club level), then lays out a ladder of loads around that baseline with the outboard, oar length and inboard settings to reach each one.</p>
+    <p class="phone-only">Pick the squad, crew weight and boat to get the manual's rig plus a ladder of lighter and heavier loads.</p>
+    <p class="desk-only">Enter the crew's average weight and boat class. The tool matches the USRowing Level 2 rigging table (Figure 7, club level), then lays out a ladder of loads around that baseline with the outboard, oar length and inboard settings to reach each one.</p>
   </header>
 
   <div class="grid">
-    <form class="panel" id="f" autocomplete="off">
+    <form class="side" id="f" autocomplete="off">
+     <div class="panel crew">
       <h2>Crew</h2>
       <div class="field">
         <span class="lbl" id="cat-l">Squad</span>
@@ -127,7 +187,7 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
       <div class="field">
         <label for="wt">Crew average weight</label>
         <div class="wt">
-          <input type="number" id="wt" min="60" max="300" step="0.5" value="185">
+          <input type="number" inputmode="decimal" id="wt" min="60" max="300" step="0.5" value="185">
           <div class="seg" role="group" aria-label="Weight unit" id="unit">
             <button type="button" data-v="lb" aria-pressed="true">lb</button>
             <button type="button" data-v="kg" aria-pressed="false">kg</button>
@@ -148,17 +208,18 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
         </select>
       </div>
 
-      <hr class="divider">
+     </div>
+     <div class="panel rig">
       <h2>Your rig</h2>
       <p class="hint" style="margin:-4px 0 12px">Pre-filled from the manual. Enter your boat's measured spread if it differs; the ladder keeps the same loads and recalculates the outboard.</p>
       <div class="row2">
         <div class="field">
           <label for="spread" id="spread-l">Spread (cm)</label>
-          <input type="number" id="spread" step="0.5">
+          <input type="number" inputmode="decimal" id="spread" step="0.5">
         </div>
         <div class="field">
           <label for="inboard">Inboard (cm)</label>
-          <input type="number" id="inboard" step="0.5">
+          <input type="number" inputmode="decimal" id="inboard" step="0.5">
         </div>
       </div>
       <div class="field">
@@ -170,9 +231,10 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
         </select>
       </div>
       <button type="button" class="reset" id="reset">Reset rig to manual values</button>
+     </div>
     </form>
 
-    <section class="panel" aria-live="polite">
+    <section class="panel results" aria-live="polite">
       <h2>Recommended settings</h2>
       <div class="match">
         <span class="chip" id="table-name">Heavyweight Men</span>
@@ -190,21 +252,17 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
 
       <div class="oar" aria-hidden="true"><svg id="oar" viewBox="0 0 760 74" preserveAspectRatio="xMidYMid meet"></svg></div>
 
+      <div class="field method phone-only">
+        <span class="lbl" id="method-l">Reach each load by</span>
+        <div class="seg" role="group" aria-labelledby="method-l" id="method">
+          <button type="button" data-v="a" aria-pressed="true">Oar length</button>
+          <button type="button" data-v="b" aria-pressed="false">Collar (clams)</button>
+        </div>
+        <p class="hint" id="method-hint"></p>
+      </div>
       <div class="tablewrap">
         <table>
-          <thead>
-            <tr>
-              <th rowspan="2">Setting</th>
-              <th rowspan="2">Load</th>
-              <th rowspan="2">Outboard</th>
-              <th class="grp" colspan="2">A · Change oar length<br><span style="font-weight:500;text-transform:none;letter-spacing:0">inboard fixed — most correct</span></th>
-              <th class="grp" colspan="2">B · Move the collar<br><span style="font-weight:500;text-transform:none;letter-spacing:0">oar length fixed — quick (clams)</span></th>
-            </tr>
-            <tr>
-              <th>Oar length</th><th>Gearing</th>
-              <th>Inboard</th><th>Gearing</th>
-            </tr>
-          </thead>
+          <thead id="ladder-head"></thead>
           <tbody id="ladder"></tbody>
         </table>
       </div>
@@ -231,6 +289,10 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
     <div><b>Crew weight</b> picks the table. Men averaging 70 kg (154.3 lb) or less use the lightweight men's row; women averaging 57 kg (125.7 lb) or less use the lightweight women's row (World Rowing crew-average limits). Juniors use the junior tables. The manual does not scale load by body weight within a table, so this tool doesn't either: use the ladder to fit your crew's size and strength.</div>
     <div><b>Inboard rule of thumb:</b> sweep inboard = spread + 30 cm (±1); sculling inboard = (spread + 18 cm overlap) ÷ 2. Clams are about 1 cm each. Use the blade maker's recommendations for new blade shapes such as fat blades.</div>
   </section>
+  <footer class="layout-switch">
+    <span id="layout-now"></span>
+    <button type="button" id="layout-btn"></button>
+  </footer>
 </div>
 
 <script>
@@ -260,7 +322,8 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
   const LB = 2.20462;
   const mid = r => (r[0] + r[1]) / 2;
   const $ = id => document.getElementById(id);
-  const st = { cat: "men", unit: "lb", rigEdited: false };
+  const st = { cat: "men", unit: "lb", method: "a", rigEdited: false };
+  const isPhone = () => document.documentElement.dataset.device === "phone";
 
   const f1 = n => (Math.round(n * 10) / 10).toFixed(1).replace(/\.0$/, "");
   const f2 = n => n.toFixed(2);
@@ -340,6 +403,20 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
 
     // ladder
     const step = parseFloat($("step").value);
+    const phone = isPhone(), A = st.method === "a";
+    $("method-hint").textContent = A
+      ? `Inboard stays at ${f1(inb)} cm; set the oar to the length shown. Most correct. Lengths in cm.`
+      : `Oar length stays at ${f1(len0)} cm; move the collar with clams (about 1 cm each). Quick. Lengths in cm.`;
+    $("ladder-head").innerHTML = phone
+      ? `<tr><th>Outboard change</th><th>Load</th><th>Outboard</th><th>${A ? "Oar length" : "Inboard"}</th><th>Gearing</th></tr>`
+      : `<tr>
+          <th rowspan="2">Setting</th>
+          <th rowspan="2">Load</th>
+          <th rowspan="2">Outboard</th>
+          <th class="grp" colspan="2">A · Change oar length<br><span style="font-weight:500;text-transform:none;letter-spacing:0">inboard fixed — most correct</span></th>
+          <th class="grp" colspan="2">B · Move the collar<br><span style="font-weight:500;text-transform:none;letter-spacing:0">oar length fixed — quick (clams)</span></th>
+        </tr>
+        <tr><th>Oar length</th><th>Gearing</th><th>Inboard</th><th>Gearing</th></tr>`;
     const rows = [];
     for (let k = 4; k >= -4; k--) {
       const out = out0 + k * step;
@@ -350,6 +427,17 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
       const cls = k === 0 ? "base" : k > 0 ? "heavier" : "lighter";
       const label = k === 0 ? "Baseline (manual)" : `${k > 0 ? "+" : "−"}${f1(Math.abs(k * step))} cm outboard`;
       const warn = Math.abs(clams) > 2.01 ? `<span class="warn" title="More than two 1 cm clams">&gt;2 clams</span>` : "";
+      if (phone) {
+        const short = k === 0 ? "Base" : `${k > 0 ? "+" : "−"}${f1(Math.abs(k * step))}`;
+        rows.push(`<tr class="${cls}">
+          <td><span class="tag"><span class="dot"></span>${short}</span></td>
+          <td>${f3(load)}</td>
+          <td>${f1(out)}</td>
+          <td>${A ? f1(lenA) : f1(inB) + warn}</td>
+          <td>${f2(out / (A ? inb : inB))}</td>
+        </tr>`);
+        continue;
+      }
       rows.push(`<tr class="${cls}">
         <td><span class="tag"><span class="dot"></span>${label}</span></td>
         <td>${f3(load)}</td>
@@ -365,12 +453,14 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
   }
 
   function drawOar(inb, out) {
-    const W = 760, x0 = 20, x1 = 740, total = inb + out;
+    const phone = isPhone();
+    const W = phone ? 360 : 760, x0 = 20, x1 = W - 20, bw = phone ? 50 : 78, total = inb + out;
+    $("oar").setAttribute("viewBox", `0 0 ${W} 74`);
     const sc = (x1 - x0) / total, xb = x0 + inb * sc;
     $("oar").innerHTML = `
-      <line x1="${x0}" y1="30" x2="${x1 - 70}" y2="30" stroke="var(--muted)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="${x0}" y1="30" x2="${x1 - bw + 8}" y2="30" stroke="var(--muted)" stroke-width="4" stroke-linecap="round"/>
       <rect x="${x0}" y="24" width="${Math.min(70, inb * sc * 0.35)}" height="12" rx="4" fill="var(--ink)"/>
-      <rect x="${x1 - 78}" y="20" width="78" height="20" rx="6" fill="var(--accent)"/>
+      <rect x="${x1 - bw}" y="20" width="${bw}" height="20" rx="6" fill="var(--accent)"/>
       <rect x="${xb - 4}" y="18" width="8" height="24" rx="2" fill="var(--tape)"/>
       <line x1="${x0}" y1="56" x2="${xb}" y2="56" stroke="var(--line)" stroke-width="1"/>
       <line x1="${xb}" y1="56" x2="${x1}" y2="56" stroke="var(--line)" stroke-width="1"/>
@@ -382,7 +472,18 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
       <text x="${x1}" y="12" text-anchor="end">blade · total <tspan class="strong">${f1(total)} cm</tspan></text>`;
   }
 
-  seg("cat", "cat"); seg("unit", "unit");
+  seg("cat", "cat"); seg("unit", "unit"); seg("method", "method");
+  function layoutSwitch() {
+    const L = window.OLCLayout, cur = isPhone() ? "phone" : "desktop";
+    $("layout-now").textContent = `Showing the ${cur} layout${L.pref ? " (your choice)" : " for this screen"}.`;
+    $("layout-btn").textContent = L.pref ? "Pick automatically" : `Use ${cur === "phone" ? "desktop" : "phone"} layout`;
+  }
+  $("layout-btn").addEventListener("click", () => {
+    const L = window.OLCLayout;
+    L.set(L.pref ? null : (isPhone() ? "desktop" : "phone"));
+  });
+  document.addEventListener("devicechange", () => { render(); layoutSwitch(); });
+  layoutSwitch();
   ["wt", "step"].forEach(id => $(id).addEventListener("input", render));
   ["spread", "inboard"].forEach(id => $(id).addEventListener("input", () => { st.rigEdited = true; render(); }));
   $("boat").addEventListener("change", () => { st.rigEdited = false; lastRowKey = ""; render(); });
