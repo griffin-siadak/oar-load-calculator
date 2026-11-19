@@ -31,9 +31,9 @@ Gearing is shown for both methods so you can see how each one changes the feel o
 
 ## Mobile and desktop layouts
 
-The page checks the screen size and whether it's a touch screen, then picks a layout. It does not rely on the browser's user agent.
+The page checks whether the device's main input is touch and how wide the screen is, then picks a layout. Touchscreen laptops count as desktop, since their main input is still a mouse or trackpad. It does not rely on the browser's user agent.
 
-- **Mobile** (screens 760 px wide or less, or a touch screen turned sideways): the results come right after the crew inputs and the rig adjustments move below them. The ladder shows one method at a time, with a switch between "Oar length" and "Collar (clams)", so the table fits without sideways scrolling. Buttons and inputs are sized for thumbs, the number fields bring up a decimal keypad, and the oar diagram is redrawn so its labels stay readable.
+- **Mobile** (phones and tablets: any device whose main input is touch, or any screen 760 px wide or less): the results come right after the crew inputs and the rig adjustments move below them. The ladder shows one method at a time, with a switch between "Oar length" and "Collar (clams)", so the table fits without sideways scrolling. Buttons and inputs are sized for thumbs, the number fields bring up a decimal keypad, and the oar diagram is redrawn so its labels stay readable.
 - **Desktop:** inputs on the left, results on the right, and the full ladder with both methods side by side.
 
 If the page guesses wrong, a switch at the bottom forces the other layout. The browser remembers that choice until you set it back to automatic.

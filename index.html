@@ -12,11 +12,12 @@ img { max-width: 100%; }
 </style>
 <title>Oar Load Calculator</title>
 <script>
-/* Device check: phone = narrow screen, or a touch screen held sideways (short height).
+/* Device check: mobile (phones and tablets) = narrow screen, or any device whose main input is touch
+   (coarse pointer, no hover). Touchscreen laptops have a mouse/trackpad as the main input, so they stay desktop.
    Sets <html data-device="phone|desktop"> before the page paints and re-checks on resize/rotate.
    A saved choice from the layout switch at the bottom of the page overrides the check. */
 (() => {
-  const q = matchMedia("(max-width: 760px), (pointer: coarse) and (max-height: 500px)");
+  const q = matchMedia("(max-width: 760px), (pointer: coarse) and (hover: none)");
   let pref = null;
   try { pref = localStorage.getItem("olc-layout"); } catch (e) {}
   const apply = () => {
@@ -141,7 +142,7 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
 /* ---------- Phone layout ---------- */
 /* Order on phones: crew inputs, then results, then rig tweaks, then notes. */
 :root[data-device="phone"] body { padding-block: 14px 28px; font-size: 15px; }
-[data-device="phone"] .wrap { gap: 14px; }
+[data-device="phone"] .wrap { gap: 14px; max-width: 720px; }  /* keeps the single column readable on tablets */
 [data-device="phone"] header h1 { font-size: 1.9rem; }
 [data-device="phone"] .grid { display: flex; flex-direction: column; align-items: stretch; gap: 14px; }
 [data-device="phone"] .side { display: contents; }
@@ -461,8 +462,10 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
   }
 
   function drawOar(inb, out) {
-    const phone = isPhone();
-    const W = phone ? 360 : 760, x0 = 20, x1 = W - 20, bw = phone ? 50 : 78, total = inb + out;
+    lastOar = { inb, out };
+    // Draw at roughly the on-screen width (360 to 760 units) so labels stay a readable size on phones, tablets and desktops.
+    const box = $("oar").parentNode.clientWidth || 760;
+    const W = Math.round(Math.min(760, Math.max(360, box))), x0 = 20, x1 = W - 20, bw = W < 560 ? 50 : 78, total = inb + out;
     $("oar").setAttribute("viewBox", `0 0 ${W} 74`);
     const sc = (x1 - x0) / total, xb = x0 + inb * sc;
     $("oar").innerHTML = `
@@ -491,6 +494,10 @@ tr.base td { background: var(--tape-soft); font-weight: 600; }
     L.set(L.pref ? null : (isPhone() ? "desktop" : "phone"));
   });
   document.addEventListener("devicechange", () => { render(); layoutSwitch(); });
+  let lastOar = {};
+  const redrawOar = () => { if (lastOar.inb) drawOar(lastOar.inb, lastOar.out); };
+  let raf = 0;
+  addEventListener("resize", () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(redrawOar); });
   layoutSwitch();
   ["wt", "step"].forEach(id => $(id).addEventListener("input", render));
   ["spread", "inboard"].forEach(id => $(id).addEventListener("input", () => { st.rigEdited = true; render(); }));
